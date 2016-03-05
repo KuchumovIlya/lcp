@@ -73,6 +73,13 @@ int get_pos(int suff, int n)
 	return suff / 3 + n / 3;
 }
 
+int get_suff(int pos, int n)
+{
+	if (pos < n / 3)
+		return pos * 3 + 1;
+	return (pos - n / 3) * 3 + 2;
+}
+
 void build_str12(int n, int str[], int str12[])
 {
 	int n12 = 0;
@@ -229,10 +236,20 @@ void build_sa(int n, int str[], int sa[], int rev_sa[])
 		}
 		return suff1 > suff2;
 	};
+	
+	for (int i = 0; i < n12; i++)
+		sa12[i] = get_suff(sa12[i], n);
 
-	for (int i = 0; i < n - added; i++)
-		sa[i] = i;
-	sort(sa, sa + n - added, cmp);
+	merge(sa0, sa0 + n0, sa12, sa12 + n12, sa, cmp);
+	int ptr = 0;
+	for (int i = 0; i < n; i++)
+		if (sa[i] < n - added)
+			sa[ptr++] = sa[i];
+
+	//for (int i = 0; i < n - added; i++)
+	//	sa[i] = i;
+	//sort(sa, sa + n - added, cmp);
+	
 	for (int i = 0; i < n - added; i++)
 		rev_sa[sa[i]] = i;
 

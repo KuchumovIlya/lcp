@@ -25,6 +25,13 @@ int main(int, char **argv)
 
 	int n = (int)1e6;
 	printf("%d\n", n);
+	vector<int> str = {1};
+	while ((int)str.size() < n)
+	{
+		int old_len = (int)str.size();
+		for (int i = 0; i < old_len; i++)
+			str.push_back(str[i] ^ 1);
+	}
 	for (int i = 0; i < n; i++)
 		printf("%d ", rand() % n + 1);
 
