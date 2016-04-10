@@ -55,8 +55,8 @@ void _print(vector<string>::iterator it, T a, Args... args) {
 
 typedef long long int int64;
 
-const int N = (int)1e5;
-const int B = (int)1e5;
+const int N = (int)2e6;
+const int B = 5 * N;
 
 const int S_TYPE = 0;
 const int L_TYPE = 1;
@@ -144,9 +144,12 @@ int is_lms_eq(int str[], int a, int b)
 		return true;
 	while (true)
 	{
-		if (!first && is_lms(a) && is_lms(b))
+		bool a_is_lms = is_lms(a);
+		bool b_is_lms = is_lms(b);
+
+		if (!first && a_is_lms && b_is_lms)
 			return true;
-		if (is_lms(a) != is_lms(b))
+		if (a_is_lms != b_is_lms)
 			return false;
 		first = false;
 		if (str[a] != str[b])
@@ -171,6 +174,11 @@ void build_sa(int n, int str[])
 	calc_suff_types(n, str);
 	find_backets_borders(n, str);
 	
+	bool can_finish = true;
+	for (int i = 0; i < n; i++)
+		if (l_ptr[i] != r_ptr[i])
+			can_finish = false;
+	
 	fill(sa, sa + n, -1);
 	for (int i = 0; i < n; i++)
 		if (is_lms(i))
@@ -178,6 +186,9 @@ void build_sa(int n, int str[])
 
 	left_right_run(n, str);
 	
+	if (can_finish)
+		return;
+
 	int new_n = 0;
 	for (int i = 0; i < n; i++)
 		if (is_lms(i))
