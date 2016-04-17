@@ -33,7 +33,15 @@ int main(int, char **argv)
 			str.push_back(str[i] ^ 1);
 	}
 	for (int i = 0; i < n; i++)
+		printf("%d ", str[i] + 1);
+
+	/*
+	int n = (int)1e6;
+	printf("%d\n", n);
+	for (int i = 0; i < n; i++)
 		printf("%d ", rand() % n + 1);
+	printf("\n");
+	*/
 
 	return 0;
 }

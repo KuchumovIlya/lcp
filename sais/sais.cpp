@@ -154,6 +154,8 @@ int is_lms_eq(int str[], int a, int b)
 		first = false;
 		if (str[a] != str[b])
 			return false;
+		if (suff_type[a] != suff_type[b])
+			return false;
 		a++;
 		b++;
 	}

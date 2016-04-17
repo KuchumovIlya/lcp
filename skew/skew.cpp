@@ -51,6 +51,25 @@ typedef long long int int64;
 const int K = 5;
 const int LIM = 6;
 
+const int N = (int)2e6;
+const int B = (int)2e7;
+
+int buf_ptr;
+int buf[B];
+
+int head[N];
+int new_str12[N];
+int new_sa0[N];
+int rev_sa12[N];
+int sa0[N];
+
+int* create_arr(int size)
+{
+	buf_ptr += size;
+	assert(buf_ptr <= B);
+	return buf + buf_ptr - size;
+}
+
 int add_zeros(int &n, int str[])
 {
 	int added = 0;
@@ -80,7 +99,7 @@ int get_suff(int pos, int n)
 	return (pos - n / 3) * 3 + 2;
 }
 
-void build_str12(int n, int str[], int str12[])
+bool build_str12(int n, int str[], int str12[])
 {
 	int n12 = 0;
 	for (int mod = 1; mod <= 2; mod++)
@@ -88,8 +107,6 @@ void build_str12(int n, int str[], int str12[])
 				str12[n12++] = i;
 	
 	int head_size = n + K;
-	int* head = new int[head_size];
-	int* new_str12 = new int[n12];
 
 	for (int sh = 2; sh >= 0; sh--)
 	{
@@ -137,19 +154,16 @@ void build_str12(int n, int str[], int str12[])
 
 	copy(new_str12, new_str12 + n12, str12);
 	
-	delete head;
-	delete new_str12;
+	return k == n12;
 }
 
-void build_sa0(int n, int str[], int sa0[], int rev_sa12[])
+void build_sa0(int n, int str[])
 {
 	int n0 = 0;
 	for (int i = 0; i < n; i += 3)
 		sa0[n0++] = i;
 
 	int head_size = n + K;
-	int* head = new int[head_size];
-	int* new_sa0 = new int[n0];
 
 	for (int sh = 1; sh >= 0; sh--)
 	{
@@ -174,12 +188,9 @@ void build_sa0(int n, int str[], int sa0[], int rev_sa12[])
 
 		copy(new_sa0, new_sa0 + n0, sa0);
 	}
-
-	delete head;
-	delete new_sa0;
 }
 
-void build_sa(int n, int str[], int sa[], int rev_sa[])
+void build_sa(int n, int str[], int sa[])
 {
 	if (n <= LIM)
 	{
@@ -197,26 +208,27 @@ void build_sa(int n, int str[], int sa[], int rev_sa[])
 			sa[i] = i;
 		sort(sa, sa + n, slow_cmp);
 		
-		for (int i = 0; i < n; i++)
-			rev_sa[sa[i]] = i;
-
 		return;
 	}
 
 	int added = add_zeros(n, str);
 
 	int n12 = 2 * n / 3;
-	int *str12 = new int[n12 + K];
-	build_str12(n, str, str12);
+	int *str12 = create_arr(n12 + K);
+	int* sa12 = create_arr(n12 + K);
+	if (build_str12(n, str, str12))
+	{
+		for (int i = 0; i < n12; i++)
+			sa12[str12[i] - 1] = i;
+	}
+	else
+		build_sa(n12, str12, sa12);
 
-	int* sa12 = new int[n12 + K];
-	int* rev_sa12 = new int[n12 + K];
-	build_sa(n12, str12, sa12, rev_sa12);
+	for (int i = 0; i < n12; i++)
+		rev_sa12[sa12[i]] = i;
 
 	int n0 = n / 3;
-	int* sa0 = new int[n0 + K];
-	int* rev_sa0 = new int[n0 + K];
-	build_sa0(n, str, sa0, rev_sa12);
+	build_sa0(n, str);
 
 	auto cmp = [&] (int suff1, int suff2)
 	{
@@ -245,19 +257,6 @@ void build_sa(int n, int str[], int sa[], int rev_sa[])
 	for (int i = 0; i < n; i++)
 		if (sa[i] < n - added)
 			sa[ptr++] = sa[i];
-
-	//for (int i = 0; i < n - added; i++)
-	//	sa[i] = i;
-	//sort(sa, sa + n - added, cmp);
-	
-	for (int i = 0; i < n - added; i++)
-		rev_sa[sa[i]] = i;
-
-	delete str12;
-	delete sa12;
-	delete rev_sa12;
-	delete sa0;
-	delete rev_sa0;
 }
 
 int main()
@@ -268,16 +267,15 @@ int main()
 
 	int n;
 	scanf("%d", &n);
-	int* str = new int[n + K];
+	int* str = create_arr(n + K);
 	for (int i = 0; i < n; i++)
 	{
 		scanf("%d", &str[i]);
 		assert(1 <= str[i] && str[i] <= n);
 	}
 
-	int* sa = new int[n + K];
-	int* rev_sa = new int[n + K];
-	build_sa(n, str, sa, rev_sa);
+	int* sa = create_arr(n + K);
+	build_sa(n, str, sa);
 
 	for (int i = 0; i < n; i++)
 		printf("%d ", sa[i]);
